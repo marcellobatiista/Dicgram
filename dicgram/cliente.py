@@ -6,11 +6,11 @@
 import requests
 
 from threading import Thread
-from dicgram import FRAMEWORK_VERSION, COPYRIGHT
 from dicgram.metodos import Metodos
 from dicgram.mensagem import Mensagem
-from dicgram import check_mensagem
-from dicgram import check_funcao_resp
+
+from dicgram.decorators import check_mensagem
+from dicgram.decorators import check_funcao_resp
 
 
 class Bot(Metodos):
@@ -18,7 +18,11 @@ class Bot(Metodos):
     Funções de requisição ao bot API do Telegram
     """
 
-    version = FRAMEWORK_VERSION
+    version = None
+    copyright = None
+
+    comandos_privado = {}
+    comandos_publico = {}
 
     def __init__(self, **kwargs):
         """
@@ -26,23 +30,19 @@ class Bot(Metodos):
 
         :param nome: nome do bot
         :param token: token do bot
-        :param loop: se o bot deve receber atualizações de novas mensagens: Default é True
+        :param update: se o bot deve receber atualizações de novas mensagens: Default é True
         """
 
         self.__token = kwargs.get('token', None)
         self.__nome = kwargs.get('nome', 'Bot')
-        self.__att = kwargs.get('loop', True) is True
+        self.__att = kwargs.get('update', True) is True
 
         self.__setup(self.__token)
         super().__init__(self.__token)
-
-        self.comandos_privado = {}
-        self.comandos_publico = {}
-
         self.__run() if self.__att else None
 
-    def __status__(self):
-        return f'\n{COPYRIGHT}\n{self.__nome} ({self.version}) - Online!\n\n'
+    def __status(self):
+        return f'\n{self.copyright}\n{self.__nome} ({self.version}) - Online!\n\n'
 
     def __setup(self, token):
         """
@@ -62,7 +62,7 @@ class Bot(Metodos):
         """
 
         Thread(target=self.__receber_mensagem).start()
-        print(self.__status__())
+        print(self.__status())
 
     def _get_updates(self, offset=None):
         """
@@ -109,7 +109,7 @@ class Bot(Metodos):
     @check_funcao_resp
     def __responder_evento(self, msg):
         """
-        Responde a um evento com a chave especial @eventos
+        Responde a um evento com a chave especial @
 
         :param msg: mensagem recebida do bot
         :return: None
@@ -122,26 +122,51 @@ class Bot(Metodos):
             print(msg)
 
         bot.comandos_publicp = {
-            '@mensagem': ola_evento
+            '@mensagem': ola_evento,
+            '@chat': ola_evento
         }
 
+        """
+
+        self.__evento_chat(msg)
+        self.__evento_mensagem(msg)
+
+    def __evento_chat(self, msg):
+        """
+        Responde a um evento de chat
+
+        :param msg: mensagem recebida do bot
+        :return: None
         """
 
         chat_id, is_privado, texto = self.__info_msg(msg)
 
         if '@chat' in self.comandos_privado and texto == '':
             func = self.comandos_privado['@chat']
-            func(mim=self, msg=Mensagem(msg), args=None) if is_privado else None
+            resp = func(mim=self, msg=Mensagem(msg), args=None) if is_privado else None
+            self.__responder_retorno(chat_id, resp)
         if '@chat' in self.comandos_publico and texto == '':
             func = self.comandos_publico['@chat']
-            func(mim=self, msg=Mensagem(msg), args=None) if not is_privado else None
+            resp = func(mim=self, msg=Mensagem(msg), args=None) if not is_privado else None
+            self.__responder_retorno(chat_id, resp)
 
+    def __evento_mensagem(self, msg):
+        """
+        Responde a um evento de mensagem
+
+        :param msg: mensagem recebida do bot
+        :return: None
+        """
+
+        chat_id, is_privado, texto = self.__info_msg(msg)
         if '@mensagem' in self.comandos_privado and texto != '':
             func = self.comandos_privado['@mensagem']
-            func(mim=self, msg=Mensagem(msg), args=None) if is_privado else None
+            resp = func(mim=self, msg=Mensagem(msg), args=None) if is_privado else None
+            self.__responder_retorno(chat_id, resp)
         if '@mensagem' in self.comandos_publico and texto != '':
             func = self.comandos_publico['@mensagem']
-            func(mim=self, msg=Mensagem(msg), args=None) if not is_privado else None
+            resp = func(mim=self, msg=Mensagem(msg), args=None) if not is_privado else None
+            self.__responder_retorno(chat_id, resp)
 
     def __responder_comando(self, texto, msg):
         """
@@ -175,7 +200,6 @@ class Bot(Metodos):
         """
 
         cmd = texto.split(' ')[0]
-
         msg_pv = self.comandos_privado.get(cmd, None)
         msg_pb = self.comandos_publico.get(cmd, None)
 

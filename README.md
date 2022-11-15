@@ -1,6 +1,6 @@
 # Dicgram
 
-Dicgram é um Framework simples para criação de bots para o Telegram em Python 3.7+
+Dicgram é um Framework simples para criação de bots para o Telegram em Python
 
 ## Instalação
 
@@ -16,7 +16,7 @@ que será enviada como resposta ao comando enviado pelo usuário.
 ### Exemplo de uso básico
 
 ```python
-from dicgram.cliente import Bot
+from dicgram import Bot
 
 bot = Bot('<TOKEN>')
 
@@ -50,7 +50,7 @@ Além disso, é possível criar comandos com parâmetros, que serão passados co
 ### Exemplo de uso intermediário
 
 ```python
-from dicgram.cliente import Bot
+from dicgram import Bot
 
 bot = Bot('<TOKEN>')
 
@@ -82,7 +82,7 @@ como o ID do usuário, o nome do usuário, o ID do chat, o tipo do chat, etc.
 ### Exemplo de uso intermediário ||
 
 ```python
-from dicgram.cliente import Bot
+from dicgram import Bot
 
 bot = Bot('<TOKEN>')
 
@@ -135,7 +135,7 @@ que acontece no chat, como um novo usuário entrando no grupo, um usuário saind
 ### Exemplo de uso avançado
 
 ```python
-from dicgram.cliente import Bot
+from dicgram import Bot
 
 bot = Bot(token='<TOKEN>')
 
@@ -197,13 +197,13 @@ A documentação da API do Telegram pode ser encontrada [aqui](https://core.tele
 ### Exemplo de uso de métodos da API do Telegram
 
 ```python
-from dicgram.cliente import Bot
+from dicgram import Bot
 
 
-bot = Bot(token = '<TOKEN>')
+bot = Bot(token='<TOKEN>', update=False)
 
-bot.setchattitle(chat_id = '<ID DO GRUPO>', title = 'Novo título do grupo')
-bot.sendlocation(chat_id = '<ID DO GRUPO>', latitude = -23.5505, longitude = -46.6333)
+bot.setchattitle(chat_id='<ID DO GRUPO>', title='Novo título do grupo')
+bot.sendlocation(chat_id='<ID DO GRUPO>', latitude=-23.5505, longitude=-46.6333)
 # etc...
 ```
 
@@ -215,8 +215,8 @@ Ela é responsável por fazer a conexão com o Telegram e gerenciar os eventos.
 Parâmetros:
 
 * `token`: O token do bot que você recebeu do BotFather. (Obrigatório)
-* `nome`: O nome do bot. (Opcional). Se não for informado, o nome da instância será `Bot`.
-* `loop`: O loop de captura de eventos. (Opcional). Se não for informado, continurá como True.
+* `nome`: O nome do bot. (Opcional). Se não for informado, o nome da instância será "Bot".
+* `update`: O loop de captura de eventos. (Opcional). Se não for informado, continurá como True.
 
 
 ### Projeto feito por [Marcelo](https://github.com/marcellobatiista)

@@ -1,17 +1,19 @@
 from setuptools import setup
-from dicgram import FRAMEWORK_VERSION
+from dicgram import version
+from dicgram import autor
+from dicgram import email
 
 with open("requirements.txt", encoding="utf-8") as r:
     requires = [i.strip() for i in r]
 
 setup(
     name='dicgram',
-    version=FRAMEWORK_VERSION,
+    version=version,
     description='Framework para criar bots do Telegram',
 
     url='https://github.com/marcellobatiista/dicgram',
-    author='Marcelo Batista',
-    author_email='batista.marcelo34@gmail.com',
+    author=autor,
+    author_email=email,
 
     license='MIT',
 
