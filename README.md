@@ -1,1 +1,232 @@
 # Dicgram
+
+Dicgram é um Framework simples para criação de bots para o Telegram em Python 3.7+
+
+## Instalação
+
+```bash
+python setup.py install
+```
+
+O uso dele é bem simples, basta criar um arquivo principal e importar o Dicgram, e criar uma instância do Bot.
+
+Os comandos são criados em um dicionário, onde a chave é o comando e o valor é uma string 
+que será enviada como resposta ao comando enviado pelo usuário.
+
+### Exemplo de uso básico
+
+```python
+from dicgram.cliente import Bot
+
+bot = Bot('<TOKEN>')
+
+# Responde aos comandos no privado
+bot.comandos_privado = {
+    '/start': 'Olá, mundo! Eu sou um bot!',
+    '/help': 'Em que posso ajudar? :)',
+}
+
+# Responde aos comandos em canais e grupos
+bot.comandos_publico = {
+    '/start': 'Olá, mundo! (publico)',
+    '/help': 'Em que posso ajudar, (publico)?',
+}
+
+# Usuário privado: /start
+# Bot: Olá, mundo! Eu sou um bot!
+
+# Usuário público: /start
+# Bot: Olá, mundo! (publico)
+
+# Usuário privado: /help
+# Bot: Em que posso ajudar? :)
+
+# Usuário público: /help
+# Bot: Em que posso ajudar, (publico)?
+````
+
+Além disso, é possível criar comandos com parâmetros, que serão passados como argumentos para a função de resposta.
+
+### Exemplo de uso intermediário
+
+```python
+from dicgram.cliente import Bot
+
+bot = Bot('<TOKEN>')
+
+def soma(mim, msg, args):
+    return sum(map(int, args))
+
+bot.comandos_privado = {
+    '/soma': soma,
+}
+
+# Usuário: /soma 1 2 3
+# Bot: 6
+
+# Usuário: /soma 1 2 3 4 5 6 7 8 9 10
+# Bot: 55
+
+# Usuário: /soma 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20
+# Bot: 210
+```
+
+Quer tornar seu bot mais dinâmico? Existem dois argumentos de fluxo opcionais para a função de resposta, `mim` e `msg`.
+
+O primeiro é uma instância da classe `Bot`, que contém métodos da API do Telegram para enviar mensagens, arquivos, etc.
+
+O segundo é uma instância da classe `Mensagem`, que contém informações sobre a mensagem enviada pelo usuário,
+como o ID do usuário, o nome do usuário, o ID do chat, o tipo do chat, etc. 
+
+
+### Exemplo de uso intermediário ||
+
+```python
+from dicgram.cliente import Bot
+
+bot = Bot('<TOKEN>')
+
+def consultar_cotacao(mim, msg, args):
+    if not args:
+        mim.sendmessage(chat_id=msg.message.from_user.chat.id, text='Você precisa informar o nome da moeda.')
+        return 'Uma mensagem foi enviada para você no privado.'
+
+    moeda = args[0].upper()
+    if moeda not in ('USD', 'EUR', 'BTC'):
+        bot.sendmessage(chat_id=msg.message.from_user.chat.id, text='Moeda inválida.')
+        return 'Enviei uma mensagem para você no privado.'
+
+    cotacao = {
+        'USD': 3.75,
+        'EUR': 4.20,
+        'BTC': 50000.00,
+    }[moeda]
+    
+    return f'A cotação do {moeda} é {cotacao}.'
+    
+
+bot.comandos_privado['/start'] = 'Olá, mundo! Eu sou um bot!'
+bot.comandos_publico['/cotacao'] = consultar_cotacao
+
+
+# Usuário público: /cotacao
+# Bot privado: Você precisa informar o nome da moeda.
+# Bot público: Uma mensagem foi enviada para você no privado.
+
+# Usuário público: /cotacao usd
+# Bot publico: A cotação do USD é 3.75.
+
+# Usuário público: /cotacao xyz
+# Bot privado: Moeda inválida.
+# Bot público: Enviei uma mensagem para você no privado.
+
+# Usuário privado: /start
+# Bot: Olá, mundo! Eu sou um bot!
+```
+
+Tem certos momentos em que você quer que o bot responda a uma mensagem específica, sem que seja necessário um comando.
+Para isso, você pode usar chaves especiais de eventos para o dicionário de comandos.
+
+No momento, existem duas chaves especiais: `@mensagem` e `@chat`.
+
+A chave `@mensagem` é usada para responder a eventos de mensagens novas, e a chave `@chat` é usada para responder a eventos do 
+que acontece no chat, como um novo usuário entrando no grupo, um usuário saindo do grupo, etc.
+
+### Exemplo de uso avançado
+
+```python
+from dicgram.cliente import Bot
+
+bot = Bot(token='<TOKEN>')
+
+usuarios = {}
+chat = None
+
+
+def contador_de_mensagens(mim, msg, args):
+    global chat
+    chat = msg.message.chat.id
+
+    if msg.message.from_user.id not in usuarios:
+        usuarios[msg.message.from_user.id] = 1
+    else:
+        usuarios[msg.message.from_user.id] += 1
+
+
+def mostrar_contagem(mim, msg, args):
+    if msg.message.from_user.id in usuarios:
+        nome = msg.message.from_user.first_name
+        return f'{nome}, você já mandou {usuarios[msg.message.from_user.id]} mensagens'
+    else:
+        return 'Você ainda não mandou nenhuma mensagem'
+
+
+def desligar_contador(mim, msg, args):
+    mim.comandos_publico.pop('@mensagem', None)
+    usuarios.clear()
+    mim.sendmessage(chat_id=chat,
+                    text='Pessoas, o contador de mensagens foi desligado pelo admin')
+    return 'Contador de mensagens desligado!'
+
+
+bot.comandos_publico = {
+    '@mensagem': contador_de_mensagens,
+    '/contagem': mostrar_contagem,
+}
+bot.comandos_privado['/desligar'] = desligar_contador
+
+# Usuário1 público: /contagem
+# Bot público: Você ainda não mandou nenhuma mensagem
+
+# Usuário1 público: Olá, mundo!
+
+# Usuário1 público: /contagem
+# Bot público: Dev, você já mandou 1 mensagens
+
+# Usuário privdao: /desligar
+# Bot privado: Contador de mensagens desligado!
+# Bot público: Pessoas, o contador de mensagens foi desligado pelo admin
+```
+
+Os métodos da API do Telegram são acessados através da instância da classe `Bot`.
+Por exemplo, o método sendMessage é acessado através de `bot.sendmessage`.
+O nome dos métodos é o mesmo da API do Telegram, mas em minúsculo.
+
+A documentação da API do Telegram pode ser encontrada [aqui](https://core.telegram.org/bots/api#available-methods).
+
+### Exemplo de uso de métodos da API do Telegram
+
+```python
+from dicgram.cliente import Bot
+
+
+bot = Bot(token = '<TOKEN>')
+
+bot.setchattitle(chat_id = '<ID DO GRUPO>', title = 'Novo título do grupo')
+bot.sendlocation(chat_id = '<ID DO GRUPO>', latitude = -23.5505, longitude = -46.6333)
+# etc...
+```
+
+### Classe `Bot`
+
+A classe `Bot` é a classe principal do módulo `dicgram.cliente`.
+Ela é responsável por fazer a conexão com o Telegram e gerenciar os eventos.
+
+Parâmetros:
+
+* `token`: O token do bot que você recebeu do BotFather. (Obrigatório)
+* `nome`: O nome do bot. (Opcional). Se não for informado, o nome da instância será `Bot`.
+* `loop`: O loop de captura de eventos. (Opcional). Se não for informado, continurá como True.
+
+
+### Projeto feito por [Marcelo](https://github.com/marcellobatiista)
+
+* [Instagram](https://www.instagram.com/marcellobatiista/)
+* [Twitter](https://twitter.com/marcellobatiist)
+* [Telegram](https://t.me/@SP4CNE)
+* [Linkedin](https://www.linkedin.com/in/marcellobatiista/)
+
+### Licença
+
+MIT License
+
