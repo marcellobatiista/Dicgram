@@ -73,9 +73,9 @@ bot.comandos_privado = {
 
 Quer tornar seu bot mais dinâmico? Existem dois argumentos de fluxo opcionais para a função de resposta, `mim` e `msg`.
 
-O primeiro é uma instância da classe `Bot`, que contém métodos da API do Telegram para enviar mensagens, arquivos, etc.
+O primeiro é um objeto da classe `Bot`, que contém métodos da API do Telegram para enviar mensagens, arquivos, etc.
 
-O segundo é uma instância da classe `Mensagem`, que contém informações sobre a mensagem enviada pelo usuário,
+O segundo é um objeto da classe `Mensagem`, que contém informações sobre a mensagem enviada pelo usuário,
 como o ID do usuário, o nome do usuário, o ID do chat, o tipo do chat, etc. 
 
 
