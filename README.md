@@ -73,7 +73,7 @@ bot.comandos_privado = {
 
 Quer tornar seu bot mais dinâmico? Existem dois argumentos de fluxo opcionais para a função de resposta, `mim` e `msg`.
 
-O primeiro é um objeto da classe `Bot`, que contém métodos da API do Telegram para enviar mensagens, arquivos, etc.
+O primeiro é um objeto da classe `Bot`, que contém informações do seu bot e métodos da API do Telegram para enviar mensagens, arquivos, etc.
 
 O segundo é um objeto da classe `Mensagem`, que contém informações sobre a mensagem enviada pelo usuário,
 como o ID do usuário, o nome do usuário, o ID do chat, o tipo do chat, etc. 
@@ -88,12 +88,12 @@ bot = Bot('<TOKEN>')
 
 def consultar_cotacao(mim, msg, args):
     if not args:
-        mim.sendmessage(chat_id=msg.message.from_user.chat.id, text='Você precisa informar o nome da moeda.')
+        mim.sendmessage(chat_id=msg.from_user.id, text='Você precisa informar o nome da moeda.')
         return 'Uma mensagem foi enviada para você no privado.'
 
     moeda = args[0].upper()
     if moeda not in ('USD', 'EUR', 'BTC'):
-        bot.sendmessage(chat_id=msg.message.from_user.chat.id, text='Moeda inválida.')
+        bot.sendmessage(chat_id=msg.from_user.id, text='Moeda inválida.')
         return 'Enviei uma mensagem para você no privado.'
 
     cotacao = {
@@ -101,9 +101,9 @@ def consultar_cotacao(mim, msg, args):
         'EUR': 4.20,
         'BTC': 50000.00,
     }[moeda]
-    
+
     return f'A cotação do {moeda} é {cotacao}.'
-    
+
 
 bot.comandos_privado['/start'] = 'Olá, mundo! Eu sou um bot!'
 bot.comandos_publico['/cotacao'] = consultar_cotacao
@@ -125,9 +125,9 @@ bot.comandos_publico['/cotacao'] = consultar_cotacao
 ```
 
 Tem certos momentos em que você quer que o bot responda a uma mensagem específica, sem que seja necessário um comando.
-Para isso, você pode usar chaves especiais de eventos para o dicionário de comandos.
+Para isso, você pode usar chaves de eventos para o dicionário de comandos.
 
-No momento, existem duas chaves especiais: `@mensagem` e `@chat`.
+No momento, existem duas chaves de eventos: `@mensagem` e `@chat`.
 
 A chave `@mensagem` é usada para responder a eventos de mensagens novas, e a chave `@chat` é usada para responder a eventos do 
 que acontece no chat, como um novo usuário entrando no grupo, um usuário saindo do grupo, etc.
@@ -145,18 +145,18 @@ chat = None
 
 def contador_de_mensagens(mim, msg, args):
     global chat
-    chat = msg.message.chat.id
+    chat = msg.chat.id
 
-    if msg.message.from_user.id not in usuarios:
-        usuarios[msg.message.from_user.id] = 1
+    if msg.from_user.id not in usuarios:
+        usuarios[msg.from_user.id] = 1
     else:
-        usuarios[msg.message.from_user.id] += 1
+        usuarios[msg.from_user.id] += 1
 
 
 def mostrar_contagem(mim, msg, args):
-    if msg.message.from_user.id in usuarios:
-        nome = msg.message.from_user.first_name
-        return f'{nome}, você já mandou {usuarios[msg.message.from_user.id]} mensagens'
+    if msg.from_user.id in usuarios:
+        nome = msg.from_user.first_name
+        return f'{nome}, você já mandou {usuarios[msg.from_user.id]} mensagens'
     else:
         return 'Você ainda não mandou nenhuma mensagem'
 
@@ -215,8 +215,8 @@ Ela é responsável por fazer a conexão com o Telegram e gerenciar os eventos.
 Parâmetros:
 
 * `token`: O token do bot que você recebeu do BotFather. (Obrigatório)
-* `nome`: O nome do bot. (Opcional). Se não for informado, o nome da instância será "Bot".
 * `update`: O loop de captura de eventos. (Opcional). Se não for informado, continurá como True.
+* `atrasar_update`: O tempo de espera para receber uma resposta do Telegram. (Opcional). Se não for informado, será 0.5s.
 
 
 ### Projeto feito por [Marcelo](https://github.com/marcellobatiista)

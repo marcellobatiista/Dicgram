@@ -31,18 +31,31 @@ class Bot(Metodos):
         :param nome: nome do bot
         :param token: token do bot
         :param update: se o bot deve receber atualizações de novas mensagens: Default é True
+        :param atrasar_update: atraso entre as atualizações de novas mensagens: Default é 0.5
         """
 
         self.__token = kwargs.get('token', None)
-        self.__nome = kwargs.get('nome', 'Bot')
         self.__att = kwargs.get('update', True) is True
+
+        self._atrasar_att = kwargs.get('atrasar_update', 0.5)
+        self._atrasar_update = self._atrasar_att if self._atrasar_att > 0 else 0.5
 
         self.__setup(self.__token)
         super().__init__(self.__token)
+        self.__set_mim()
         self.__run() if self.__att else None
 
+    def __str__(self):
+        """
+        Retorna as informações do bot
+
+        :return: informações do bot
+        """
+
+        return self.getme().__str__()
+
     def __status(self):
-        return f'\n{self.copyright}\n{self.__nome} ({self.version}) - Online!\n\n'
+        return f'\n{self.copyright}\n@{self.username} ({self.version}) - Online!\n\n'
 
     def __setup(self, token):
         """
@@ -63,6 +76,17 @@ class Bot(Metodos):
 
         Thread(target=self.__receber_mensagem).start()
         print(self.__status())
+
+    def __set_mim(self):
+        """
+        Adiciona informações do bot ao objeto
+        :return: None
+        """
+
+        atributos = dir(self.getme())
+        for atributo in atributos:
+            if atributo[0] != '_':
+                setattr(self, atributo, getattr(self.getme(), atributo))
 
     def _get_updates(self, offset=None):
         """

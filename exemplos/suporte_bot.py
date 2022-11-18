@@ -14,7 +14,7 @@ def suporte(mim, msg, args):
     if not args:
         return 'Uso: /suporte <texto>'
     bot.sendmessage(chat_id=ID_ADMIN,
-                    text=f'Usuário {msg.message.from_user.id} enviou:\n\n{" ".join(args)}')
+                    text=f'Usuário {msg.from_user.id} enviou:\n\n{" ".join(args)}')
     return 'Mensagem enviada com sucesso'
 
 

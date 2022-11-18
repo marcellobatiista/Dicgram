@@ -14,13 +14,13 @@ bot2 = Bot(token='<TOKEN2>', nome='bot2')
 
 
 def bot1_responder(mim, msg, args):
-    bot2.sendmessage(chat_id=msg.message.chat.id,
-                     text=f'Bot1 disse: {msg.message.text}')
+    bot2.sendmessage(chat_id=msg.chat.id,
+                     text=f'Bot1 disse: {msg.text}')
 
 
 def bot2_responder(mim, msg, args):
-    bot1.sendmessage(chat_id=msg.message.chat.id,
-                     text=f'Bot2 disse: {msg.message.text}')
+    bot1.sendmessage(chat_id=msg.chat.id,
+                     text=f'Bot2 disse: {msg.text}')
 
 
 bot1.comandos_privado['@mensagem'] = bot1_responder

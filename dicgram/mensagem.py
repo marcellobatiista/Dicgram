@@ -16,6 +16,7 @@ class Mensagem:
         :param dicionario: dicionário a ser transformado em objeto
         """
 
+        dicionario = dicionario.get('message', dicionario)  #
         for k, v in dicionario.items():
             if isinstance(v, dict):
                 setattr(self, k.replace('from', 'from_user'), Mensagem(v))

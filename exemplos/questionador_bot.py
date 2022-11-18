@@ -15,8 +15,8 @@ questionario = {'Qual é o seu nome?': None,
 
 def preencher_perguntas(mim, msg, args):
     nova_pergunta = None
-    user_id = msg.message.chat.id
-    texto = msg.message.text
+    user_id = msg.chat.id
+    texto = msg.text
 
     if user_id not in banco:
         banco[user_id] = questionario.copy()

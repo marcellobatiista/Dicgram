@@ -28,7 +28,7 @@ def check_mensagem(func):
                     if result['update_id'] != last_update_id:
                         last_update_id = result['update_id']
                         func(*args, **kwargs, msg=result)
-
+            time.sleep(self._atrasar_att)
     return wrapper
 
 
