@@ -81,11 +81,12 @@ class Bot(Metodos):
         Adiciona informações do bot ao objeto
         :return: None
         """
-
-        atributos = dir(self.get_me())
+        
+        gm = self.get_me()
+        atributos = dir(gm)
         for atributo in atributos:
             if atributo[0] != '_':
-                setattr(self, atributo, getattr(self.get_me(), atributo))
+                setattr(self, atributo, getattr(gm, atributo))
 
     def _get_updates(self, offset=None):
         """
