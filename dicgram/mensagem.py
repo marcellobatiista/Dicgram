@@ -6,6 +6,29 @@
 import json
 
 
+class Campos:
+    campos = ['message',
+              'edited_message', 'channel_post',
+              'edited_channel_post', 'inline_query',
+              'chosen_inline_result', 'callback_query',
+              'shipping_query', 'pre_checkout_query',
+              'poll', 'poll_answer',
+              'my_chat_member', 'chat_member',
+              'chat_join_request']
+
+    def __init__(self, message):
+        self.message = message
+
+    def update(self):
+        """
+        Retorna o campo da mensagem
+
+        :return: str
+        """
+
+        return list(self.message.keys())[1]
+
+
 class Mensagem:
     """
     Classe que transforma um dicionário em um objeto,
@@ -16,21 +39,14 @@ class Mensagem:
         :param dicionario: dicionário a ser transformado em objeto
         """
 
-        dicionario = dicionario.get('channel_post', dicionario)
-        dicionario = dicionario.get('edited_channel_post', dicionario)
-        dicionario = dicionario.get('my_chat_member', dicionario)
-        dicionario = dicionario.get('chat_member', dicionario)
-        dicionario = dicionario.get('chat_join_request', dicionario)
-        dicionario = dicionario.get('callback_query', dicionario)
-        dicionario = dicionario.get('inline_query', dicionario)
-        dicionario = dicionario.get('chosen_inline_result', dicionario)
-        dicionario = dicionario.get('message', dicionario)  #
-
         for k, v in dicionario.items():
             if isinstance(v, dict):
                 setattr(self, k.replace('from', 'from_user'), Mensagem(v))
             else:
-                setattr(self, k.replace('from', 'from_user'), v)
+                if k == 'update_id':
+                    setattr(self, k.replace('update_id', 'update'), Campos(dicionario).update())
+                else:
+                    setattr(self, k.replace('from', 'from_user'), v)
 
     def __str__(self):
         """

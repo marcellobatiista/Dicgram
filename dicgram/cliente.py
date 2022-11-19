@@ -121,10 +121,12 @@ class Bot(Metodos):
         :return: informações da mensagem
         """
 
-        chat = getattr(msg, 'chat', None)
+        conteudo = getattr(msg, msg.update)
+
+        chat = getattr(conteudo, 'chat', None)
         chat_id = getattr(chat, 'id', None)
         is_privado = getattr(chat, 'type', None) == 'private'
-        texto = getattr(msg, 'text', None)
+        texto = getattr(conteudo, 'text', None)
 
         return chat_id, is_privado, texto
 
@@ -228,6 +230,7 @@ class Bot(Metodos):
 
         self.__evento_chat(msg)
         self.__evento_mensagem(msg)
+        self.__evento_edit_mensagem(msg)
 
     def __evento_chat(self, msg):
         """
@@ -256,13 +259,35 @@ class Bot(Metodos):
         :return: None
         """
 
+        post = msg.update == 'message' or msg.update == 'channel_post'
         chat_id, is_privado, texto = self.__info_msg(msg)
-        if '@mensagem' in self.comandos_privado and texto:
+
+        if '@mensagem' in self.comandos_privado and post:
             func = self.comandos_privado['@mensagem']
             resp = func(mim=self, msg=msg, args=None) if is_privado else None
             self.__responder_retorno(chat_id, resp)
-        if '@mensagem' in self.comandos_publico and texto:
+        if '@mensagem' in self.comandos_publico and post:
             func = self.comandos_publico['@mensagem']
+            resp = func(mim=self, msg=msg, args=None) if not is_privado else None
+            self.__responder_retorno(chat_id, resp)
+
+    def __evento_edit_mensagem(self, msg):
+        """
+        Responde a um evento de edição de mensagem
+
+        :param msg: mensagem recebida do bot
+        :return: None
+        """
+
+        edit_post = msg.update == 'edited_message' or msg.update == 'edited_channel_post'
+        chat_id, is_privado, texto = self.__info_msg(msg)
+
+        if '@edit' in self.comandos_privado and edit_post:
+            func = self.comandos_privado['@edit']
+            resp = func(mim=self, msg=msg, args=None) if is_privado else None
+            self.__responder_retorno(chat_id, resp)
+        if '@edit' in self.comandos_publico and edit_post:
+            func = self.comandos_publico['@edit']
             resp = func(mim=self, msg=msg, args=None) if not is_privado else None
             self.__responder_retorno(chat_id, resp)
 

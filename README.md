@@ -127,10 +127,19 @@ bot.comandos_publico['/cotacao'] = consultar_cotacao
 Tem certos momentos em que você quer que o bot responda a uma mensagem específica, sem que seja necessário um comando.
 Para isso, você pode usar chaves de eventos para o dicionário de comandos.
 
-No momento, existem duas chaves de eventos: `@mensagem` e `@chat`.
+No momento, existem três chaves de eventos: 
 
-A chave `@mensagem` é usada para responder a eventos de mensagens novas, e a chave `@chat` é usada para responder a eventos do 
-que acontece no chat, como um novo usuário entrando no grupo, um usuário saindo do grupo, etc.
+ - `@mensagem`
+ - `@edit`
+ - `@chat`
+
+A chave `@mensagem` é usada para responder a eventos de mensagens novas.
+
+A chave `@chat` é usada para responder a eventos do 
+que acontece no chat, como um novo usuário entrando no grupo, um usuário saindo do grupo, etc. 
+
+A chave `@edit` é usada para 
+responder a eventos de mensagens editadas pelo usuário.
 
 ### Exemplo de uso avançado
 
