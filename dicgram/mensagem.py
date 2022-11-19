@@ -16,7 +16,16 @@ class Mensagem:
         :param dicionario: dicionário a ser transformado em objeto
         """
 
+        dicionario = dicionario.get('channel_post', dicionario)
+        dicionario = dicionario.get('edited_channel_post', dicionario)
+        dicionario = dicionario.get('my_chat_member', dicionario)
+        dicionario = dicionario.get('chat_member', dicionario)
+        dicionario = dicionario.get('chat_join_request', dicionario)
+        dicionario = dicionario.get('callback_query', dicionario)
+        dicionario = dicionario.get('inline_query', dicionario)
+        dicionario = dicionario.get('chosen_inline_result', dicionario)
         dicionario = dicionario.get('message', dicionario)  #
+
         for k, v in dicionario.items():
             if isinstance(v, dict):
                 setattr(self, k.replace('from', 'from_user'), Mensagem(v))

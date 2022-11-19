@@ -4,6 +4,7 @@
 
 import requests
 from bs4 import BeautifulSoup
+
 from dicgram.mensagem import Mensagem
 
 
@@ -14,12 +15,12 @@ class Metodos:
         """
 
         self.__token = token
-        self.__metodos = self.__get_metodos()
+        self.__metodos = self._get_metodos()
         for mtd in self.__metodos:
             self.__criar_metodo(mtd)
 
     @staticmethod
-    def __get_metodos():
+    def _get_metodos():
         """
         Retorna uma lista com todos os métodos disponíveis na API do Telegram
 
@@ -30,10 +31,10 @@ class Metodos:
         soup = BeautifulSoup(core.content, 'html.parser')
         a = soup.find_all('h4')
 
-        metodos_avaliados = [mtd.find('a').get('href')[1:] for mtd in a]
-        metodos_avaliados.remove('formatting-options')
-        metodos_avaliados.remove('inline-mode-methods')
-        return metodos_avaliados[metodos_avaliados.index('getme'):]
+        metodos = [mtd.text for mtd in a if ' ' not in mtd.text]
+        metodos_avaliados = metodos[metodos.index('getMe'):]
+
+        return Metodos.snake_case(metodos_avaliados)
 
     def __criar_metodo(self, nome):
         """
@@ -48,13 +49,13 @@ class Metodos:
             if (not kwargs or args) and nome not in mtsp:
                 raise ValueError('Você deve passar os parâmetros como argumentos nomeados')
 
-            url = f'https://api.telegram.org/bot{self.__token}/{nome}'
+            url = f'https://api.telegram.org/bot{self.__token}/{nome.replace("_", "")}'
             r = requests.get(url,
                              params=kwargs)
             r = r.json().get('result', r.json())
 
             if r.get('ok') or (isinstance(r, bool) and r):  # Msg Usuário
-                return r
+                return Mensagem(r)
             elif not r.get('description'):  # Msg Bot
                 return Mensagem(r)
             else:
@@ -64,15 +65,34 @@ class Metodos:
         setattr(self, nome, metodo)
 
     @staticmethod
-    def sem_parametros():
+    def snake_case(lista):
+        """
+        Retorna uma lista com todos os métodos
+        disponíveis na API do Telegram em snake_case
+
+        :param lista: lista com os métodos
+        :return: lista com os métodos em snake_case
+        """
+
+        lista_formatada = []
+        for nome in lista:
+            nome_formatado = ''
+            for letra in nome:
+                if len(nome_formatado) > 0 and letra.isupper() and nome_formatado[-1].islower():
+                    nome_formatado += '_'
+                nome_formatado += letra
+            lista_formatada.append(nome_formatado.lower())
+        return lista_formatada
+
+    def sem_parametros(self):
         """
         Retorna uma lista com todos os
         métodos disponíveis na API do Telegram
         que não possuem parâmetros
         """
 
-        return ['getme', 'close', 'getforumtopiciconstickers',
-                'getupdates', 'getwebhookinfo', 'logOut']
+        return self.snake_case(['getMe', 'close', 'getForumTopicIconStickers',
+                                'getUpdates', 'getWebhookInfo', 'logOut'])
 
     def get_metodos(self):
         """

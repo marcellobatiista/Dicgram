@@ -10,9 +10,9 @@ bot = Bot(token='<TOKEN>', nome='SuporteBot')
 def sair_do_grupo(mim, msg, args):
     try:
         if msg.new_chat_participant.username == mim.username:
-            mim.sendmessage(chat_id=msg.chat.id,
-                            text='Não gosto de grupos, então vou sair. Fuiiiz!')
-            mim.leavechat(chat_id=msg.chat.id)
+            mim.send_message(chat_id=msg.chat.id,
+                             text='Não gosto de grupos, então vou sair. Fuiiiz!')
+            mim.leave_chat(chat_id=msg.chat.id)
     except AttributeError:
         pass
 

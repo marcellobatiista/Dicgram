@@ -3,14 +3,13 @@
 # Sábado, 12 de Novembro de 2022
 
 
+from threading import Thread
+
 import requests
 
-from threading import Thread
-from dicgram.metodos import Metodos
-from dicgram.mensagem import Mensagem
-
-from dicgram.decorators import check_mensagem
 from dicgram.decorators import check_funcao_resp
+from dicgram.decorators import check_mensagem
+from dicgram.metodos import Metodos
 
 
 class Bot(Metodos):
@@ -52,7 +51,7 @@ class Bot(Metodos):
         :return: informações do bot
         """
 
-        return self.getme().__str__()
+        return self.get_me().__str__()
 
     def __status(self):
         return f'\n{self.copyright}\n@{self.username} ({self.version}) - Online!\n\n'
@@ -83,10 +82,10 @@ class Bot(Metodos):
         :return: None
         """
 
-        atributos = dir(self.getme())
+        atributos = dir(self.get_me())
         for atributo in atributos:
             if atributo[0] != '_':
-                setattr(self, atributo, getattr(self.getme(), atributo))
+                setattr(self, atributo, getattr(self.get_me(), atributo))
 
     def _get_updates(self, offset=None):
         """
@@ -122,13 +121,88 @@ class Bot(Metodos):
         :return: informações da mensagem
         """
 
-        message = msg.get('channel_post', msg.get('message', {}))
-
-        chat_id = message.get('chat', {}).get('id')
-        is_privado = message.get('chat', {}).get('type') == 'private'
-        texto = message.get('text', '')
+        chat = getattr(msg, 'chat', None)
+        chat_id = getattr(chat, 'id', None)
+        is_privado = getattr(chat, 'type', None) == 'private'
+        texto = getattr(msg, 'text', None)
 
         return chat_id, is_privado, texto
+
+    def __responder_comando(self, texto, msg):
+        """
+        Mensagem a ser enviada quando o usuário digitar o cmd
+
+        :param texto: comando digitado pelo usuário
+        :param msg: mensagem recebida
+
+        Se o chat for privado, o comando será procurado na lista de comandos
+        privados, caso contrário, será procurado na lista de comandos de chat
+        A função que será executada será a que estiver associada ao comando
+        digitado pelo usuário na lista de comandos do chat qualquer ou privado.
+        Se não houver uma função associada ao comando, será enviada uma mensagem
+        padrão como resposta.
+
+        Exemplo:
+
+        bot = Bot()
+
+        def ola_mundo(mim, msg, args):
+            bot.sendmenssage(chat_id=msg.chat.id, text='Olá mundo 1!')
+            mim.sendmenssage(chat_id=msg.chat.id, text='Olá mundo 2!')
+            return 'Olá mundo 3!'
+
+        bot.comandos_privado = {
+            '/hello': ola_mundo,
+            '/world': "Hello World!",
+        }
+
+        bot.run()
+        """
+
+        cmd = texto.split(' ')[0] if texto else None
+        msg_pv = self.comandos_privado.get(cmd, None)
+        msg_pb = self.comandos_publico.get(cmd, None)
+
+        self.__item_de_resposta(msg, msg_pv, msg_pb)
+
+    def __item_de_resposta(self, msg, msg_pv, msg_pb):
+        """
+        Função que será executada quando o bot receber uma mensagem
+
+        :param msg: mensagem recebida
+        :return: None
+        """
+
+        chat_id, is_privado, texto = self.__info_msg(msg)
+        func_resp = self.__funcao_de_resposta(msg, msg_pv, msg_pb)
+
+        if func_resp is False:
+            if isinstance(msg_pv, str) and is_privado:
+                self.send_message(chat_id=chat_id, text=msg_pv)
+            elif not is_privado and isinstance(msg_pb, str):
+                self.send_message(chat_id=chat_id, text=msg_pb)
+            else:
+                self.__responder_evento(msg)
+
+    def __funcao_de_resposta(self, msg, msg_pv, msg_pb):
+        """
+        Função que será executada quando o bot receber uma mensagem
+
+        :param msg: mensagem recebbida
+        :return: False se não for uma função
+        """
+
+        chat_id, is_privado, texto = self.__info_msg(msg)
+        args = self.__pegar_argumentos(texto)
+
+        if isinstance(lambda: None, type(msg_pv)) and is_privado:
+            resp = msg_pv(mim=self, msg=msg, args=args)
+            self.__responder_retorno(chat_id, resp)
+        elif isinstance(lambda: None, type(msg_pb)) and not is_privado:
+            resp = msg_pb(mim=self, msg=msg, args=args)
+            self.__responder_retorno(chat_id, resp)
+        else:
+            return False
 
     @check_funcao_resp
     def __responder_evento(self, msg):
@@ -165,13 +239,13 @@ class Bot(Metodos):
 
         chat_id, is_privado, texto = self.__info_msg(msg)
 
-        if '@chat' in self.comandos_privado and texto == '':
+        if '@chat' in self.comandos_privado and not texto:
             func = self.comandos_privado['@chat']
-            resp = func(mim=self, msg=Mensagem(msg), args=None) if is_privado else None
+            resp = func(mim=self, msg=msg, args=None) if is_privado else None
             self.__responder_retorno(chat_id, resp)
-        if '@chat' in self.comandos_publico and texto == '':
+        if '@chat' in self.comandos_publico and not texto:
             func = self.comandos_publico['@chat']
-            resp = func(mim=self, msg=Mensagem(msg), args=None) if not is_privado else None
+            resp = func(mim=self, msg=msg, args=None) if not is_privado else None
             self.__responder_retorno(chat_id, resp)
 
     def __evento_mensagem(self, msg):
@@ -183,90 +257,14 @@ class Bot(Metodos):
         """
 
         chat_id, is_privado, texto = self.__info_msg(msg)
-        if '@mensagem' in self.comandos_privado and texto != '':
+        if '@mensagem' in self.comandos_privado and texto:
             func = self.comandos_privado['@mensagem']
-            resp = func(mim=self, msg=Mensagem(msg), args=None) if is_privado else None
+            resp = func(mim=self, msg=msg, args=None) if is_privado else None
             self.__responder_retorno(chat_id, resp)
-        if '@mensagem' in self.comandos_publico and texto != '':
+        if '@mensagem' in self.comandos_publico and texto:
             func = self.comandos_publico['@mensagem']
-            resp = func(mim=self, msg=Mensagem(msg), args=None) if not is_privado else None
+            resp = func(mim=self, msg=msg, args=None) if not is_privado else None
             self.__responder_retorno(chat_id, resp)
-
-    def __responder_comando(self, texto, msg):
-        """
-        Mensagem a ser enviada quando o usuário digitar o cmd
-
-        :param texto: comando digitado pelo usuário
-        :param msg: mensagem recebida
-
-        Se o chat for privado, o comando será procurado na lista de comandos
-        privados, caso contrário, será procurado na lista de comandos de chat
-        A função que será executada será a que estiver associada ao comando
-        digitado pelo usuário na lista de comandos do chat qualquer ou privado.
-        Se não houver uma função associada ao comando, será enviada uma mensagem
-        padrão como resposta.
-
-        Exemplo:
-
-        bot = Bot()
-
-        def ola_mundo(mim, msg, args):
-            bot.sendmenssage(chat_id=msg.chat.id, text='Olá mundo 1!')
-            mim.sendmenssage(chat_id=msg.chat.id, text='Olá mundo 2!')
-            return 'Olá mundo 3!'
-
-        bot.comandos_privado = {
-            '/hello': ola_mundo,
-            '/world': "Hello World!",
-        }
-
-        bot.run()
-        """
-
-        cmd = texto.split(' ')[0]
-        msg_pv = self.comandos_privado.get(cmd, None)
-        msg_pb = self.comandos_publico.get(cmd, None)
-
-        self.__item_de_resposta(msg, msg_pv, msg_pb)
-
-    def __funcao_de_resposta(self, msg, msg_pv, msg_pb):
-        """
-        Função que será executada quando o bot receber uma mensagem
-
-        :param msg: mensagem recebbida
-        :return: False se não for uma função e True se for uma função
-        """
-
-        chat_id, is_privado, texto = self.__info_msg(msg)
-        args = self.__pegar_argumentos(texto)
-
-        if isinstance(lambda: None, type(msg_pv)) and is_privado:
-            resp = msg_pv(mim=self, msg=Mensagem(msg), args=args)
-            self.__responder_retorno(chat_id, resp)
-        elif isinstance(lambda: None, type(msg_pb)) and not is_privado:
-            resp = msg_pb(mim=self, msg=Mensagem(msg), args=args)
-            self.__responder_retorno(chat_id, resp)
-        else:
-            return False
-
-    def __item_de_resposta(self, msg, msg_pv, msg_pb):
-        """
-        Função que será executada quando o bot receber uma mensagem
-
-        :param msg: mensagem recebbida
-        :return: None
-        """
-
-        chat_id, is_privado, texto = self.__info_msg(msg)
-        func_resp = self.__funcao_de_resposta(msg, msg_pv, msg_pb)
-
-        if func_resp is False:
-            if isinstance(msg_pv, str) and is_privado:
-                self.sendmessage(chat_id=chat_id, text=msg_pv)
-            elif not is_privado and isinstance(msg_pb, str):
-                self.sendmessage(chat_id=chat_id, text=msg_pb)
-            else:
-                self.__responder_evento(msg)
 
     @staticmethod
     def __pegar_argumentos(texto):
@@ -277,13 +275,14 @@ class Bot(Metodos):
         :return: lista com os argumentos
         """
 
-        args = texto.split(' ')
-        if len(args) > 1:
-            args = args[1:]
-        else:
-            args = None
-
-        return args
+        if texto:
+            args = texto.split(' ')
+            if len(args) > 1:
+                args = args[1:]
+            else:
+                args = None
+            return args
+        return None
 
     def __responder_retorno(self, chat_id, resp):
         """
@@ -296,4 +295,4 @@ class Bot(Metodos):
         """
 
         if resp:
-            self.sendmessage(chat_id=chat_id, text=resp)
+            self.send_message(chat_id=chat_id, text=resp)

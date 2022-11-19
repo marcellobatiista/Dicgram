@@ -1,5 +1,7 @@
 import time
 
+from dicgram.mensagem import Mensagem
+
 
 def check_mensagem(func):
     """
@@ -27,8 +29,9 @@ def check_mensagem(func):
                 for result in updates['result']:
                     if result['update_id'] != last_update_id:
                         last_update_id = result['update_id']
-                        func(*args, **kwargs, msg=result)
+                        func(*args, **kwargs, msg=Mensagem(result))
             time.sleep(self._atrasar_att)
+
     return wrapper
 
 

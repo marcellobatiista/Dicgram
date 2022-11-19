@@ -88,12 +88,12 @@ bot = Bot('<TOKEN>')
 
 def consultar_cotacao(mim, msg, args):
     if not args:
-        mim.sendmessage(chat_id=msg.from_user.id, text='Você precisa informar o nome da moeda.')
+        mim.send_message(chat_id=msg.from_user.id, text='Você precisa informar o nome da moeda.')
         return 'Uma mensagem foi enviada para você no privado.'
 
     moeda = args[0].upper()
     if moeda not in ('USD', 'EUR', 'BTC'):
-        bot.sendmessage(chat_id=msg.from_user.id, text='Moeda inválida.')
+        bot.send_message(chat_id=msg.from_user.id, text='Moeda inválida.')
         return 'Enviei uma mensagem para você no privado.'
 
     cotacao = {
@@ -164,7 +164,7 @@ def mostrar_contagem(mim, msg, args):
 def desligar_contador(mim, msg, args):
     mim.comandos_publico.pop('@mensagem', None)
     usuarios.clear()
-    mim.sendmessage(chat_id=chat,
+    mim.send_message(chat_id=chat,
                     text='Pessoas, o contador de mensagens foi desligado pelo admin')
     return 'Contador de mensagens desligado!'
 
@@ -189,8 +189,8 @@ bot.comandos_privado['/desligar'] = desligar_contador
 ```
 
 Os métodos da API do Telegram são acessados através da instância da classe `Bot`.
-Por exemplo, o método sendMessage é acessado através de `bot.sendmessage`.
-O nome dos métodos é o mesmo da API do Telegram, mas em minúsculo.
+Por exemplo, o método send_message é acessado através de `bot.send_message`.
+O nome dos métodos é o mesmo da API do Telegram, mas em snake_case.
 
 A documentação da API do Telegram pode ser encontrada [aqui](https://core.telegram.org/bots/api#available-methods).
 
@@ -202,8 +202,8 @@ from dicgram import Bot
 
 bot = Bot(token='<TOKEN>', update=False)
 
-bot.setchattitle(chat_id='<ID DO GRUPO>', title='Novo título do grupo')
-bot.sendlocation(chat_id='<ID DO GRUPO>', latitude=-23.5505, longitude=-46.6333)
+bot.set_chat_title(chat_id='<ID DO GRUPO>', title='Novo título do grupo')
+bot.send_location(chat_id='<ID DO GRUPO>', latitude=-23.5505, longitude=-46.6333)
 # etc...
 ```
 
