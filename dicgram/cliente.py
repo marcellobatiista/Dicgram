@@ -150,8 +150,8 @@ class Bot(Metodos):
         bot = Bot()
 
         def ola_mundo(mim, msg, args):
-            bot.sendmenssage(chat_id=msg.chat.id, text='Olá mundo 1!')
-            mim.sendmenssage(chat_id=msg.chat.id, text='Olá mundo 2!')
+            bot.send_menssage(chat_id=msg.chat.id, text='Olá mundo 1!')
+            mim.send_menssage(chat_id=msg.chat.id, text='Olá mundo 2!')
             return 'Olá mundo 3!'
 
         bot.comandos_privado = {
@@ -170,7 +170,7 @@ class Bot(Metodos):
 
     def __item_de_resposta(self, msg, msg_pv, msg_pb):
         """
-        Função que será executada quando o bot receber uma mensagem
+        Envia a mensagem de resposta
 
         :param msg: mensagem recebida
         :return: None
@@ -243,6 +243,7 @@ class Bot(Metodos):
 
         chat_id, is_privado, texto = self.__info_msg(msg)
 
+        msg = getattr(msg, msg.update)
         if '@chat' in self.comandos_privado and not texto:
             func = self.comandos_privado['@chat']
             resp = func(mim=self, msg=msg, args=None) if is_privado else None
@@ -263,6 +264,7 @@ class Bot(Metodos):
         post = msg.update == 'message' or msg.update == 'channel_post'
         chat_id, is_privado, texto = self.__info_msg(msg)
 
+        msg = getattr(msg, msg.update)
         if '@mensagem' in self.comandos_privado and post:
             func = self.comandos_privado['@mensagem']
             resp = func(mim=self, msg=msg, args=None) if is_privado else None
@@ -283,6 +285,7 @@ class Bot(Metodos):
         edit_post = msg.update == 'edited_message' or msg.update == 'edited_channel_post'
         chat_id, is_privado, texto = self.__info_msg(msg)
 
+        msg = getattr(msg, msg.update)
         if '@edit' in self.comandos_privado and edit_post:
             func = self.comandos_privado['@edit']
             resp = func(mim=self, msg=msg, args=None) if is_privado else None
