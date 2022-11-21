@@ -198,6 +198,7 @@ class Bot(Metodos):
         chat_id, is_privado, texto = self.__info_msg(msg)
         args = self.__pegar_argumentos(texto)
 
+        msg = getattr(msg, msg.update)
         if isinstance(lambda: None, type(msg_pv)) and is_privado:
             resp = msg_pv(mim=self, msg=msg, args=args)
             self.__responder_retorno(chat_id, resp)
