@@ -54,7 +54,9 @@ class Metodos:
                              params=kwargs)
             r = r.json().get('result', r.json())
 
-            if r.get('ok') or (isinstance(r, bool) and r):  # Msg Usuário
+            if isinstance(r, bool):
+                pass
+            elif r.get('ok'):  # Msg Usuário
                 return Mensagem(r)
             elif not r.get('description'):  # Msg Bot
                 return Mensagem(r)
