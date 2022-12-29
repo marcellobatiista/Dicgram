@@ -7,6 +7,10 @@ Dicgram é um Framework simples para criação de bots para o Telegram em Python
 ```bash
 pip install dicgram
 ```
+ou
+```bash
+python setup.py install
+```
 
 O uso dele é bem simples, basta criar um arquivo principal e importar o Dicgram, e criar uma instância do Bot.
 
