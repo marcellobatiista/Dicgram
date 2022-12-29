@@ -1,8 +1,7 @@
 # Author: Marcelo Batista
 # GitHub: https://github.com/marcellobatiista
 # Sábado, 12 de Novembro de 2022
-
-
+import time
 from threading import Thread
 
 import requests
@@ -99,8 +98,12 @@ class Bot(Metodos):
         url = f'{self.__API_URL}getUpdates?timeout=100'
         if offset:
             url += '&offset={}'.format(offset)
-        r = requests.get(url)
-        return r.json()
+        try:
+            r = requests.get(url, verify=False)
+            return r.json()
+        except requests.exceptions.ConnectionError:
+            print('Debug: Erro de conexão')
+            time.sleep(5)
 
     @check_mensagem
     def __receber_mensagem(self, msg):
