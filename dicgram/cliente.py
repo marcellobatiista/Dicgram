@@ -99,7 +99,7 @@ class Bot(Metodos):
         if offset:
             url += '&offset={}'.format(offset)
         try:
-            r = requests.get(url, verify=False)
+            r = requests.get(url)
             return r.json()
         except requests.exceptions.ConnectionError:
             print('Debug: Erro de conexão')
