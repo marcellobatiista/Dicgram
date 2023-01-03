@@ -26,7 +26,7 @@ def check_mensagem(func):
         while True:
             updates = self._get_updates(last_update_id)
             if not updates:
-                continue
+                pass
             elif 'result' in updates:
                 for result in updates['result']:
                     if result['update_id'] != last_update_id:
