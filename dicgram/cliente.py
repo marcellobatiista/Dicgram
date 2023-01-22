@@ -1,13 +1,16 @@
 # Author: Marcelo Batista
 # GitHub: https://github.com/marcellobatiista
 # Sábado, 12 de Novembro de 2022
+
 import time
 from threading import Thread
+from typing import Union, Callable
 
 import requests
 
 from dicgram.decorators import check_funcao_resp
 from dicgram.decorators import check_mensagem
+from dicgram.mensagem import Mensagem
 from dicgram.metodos import Metodos
 
 
@@ -52,10 +55,10 @@ class Bot(Metodos):
 
         return self.get_me().__str__()
 
-    def __status(self):
+    def __status(self) -> str:
         return f'\n{self.copyright}\n@{self.username} ({self.version}) - Online!\n\n'
 
-    def __setup(self, token):
+    def __setup(self, token) -> None:
         """
         Configura o bot
 
@@ -67,7 +70,7 @@ class Bot(Metodos):
             raise Exception('Token não informado')
         self.__API_URL = f'https://api.telegram.org/bot{token}/'
 
-    def __run(self):
+    def __run(self) -> None:
         """
         Inicia o loop do bot para capturar novas mensagens
         """
@@ -75,7 +78,7 @@ class Bot(Metodos):
         Thread(target=self.__receber_mensagem).start()
         print(self.__status())
 
-    def __set_mim(self):
+    def __set_mim(self) -> None:
         """
         Adiciona informações do bot ao objeto
         :return: None
@@ -87,7 +90,7 @@ class Bot(Metodos):
             if atributo[0] != '_':
                 setattr(self, atributo, getattr(gm, atributo))
 
-    def _get_updates(self, offset=None):
+    def _get_updates(self, offset: int = None) -> dict:
         """
         Pega as novas mensagens
 
@@ -106,7 +109,7 @@ class Bot(Metodos):
             time.sleep(5)
 
     @check_mensagem
-    def __receber_mensagem(self, msg):
+    def __receber_mensagem(self, msg: Mensagem) -> None:
         """
         Recebe a mensagem e a processa
 
@@ -117,7 +120,7 @@ class Bot(Metodos):
         self.__responder_comando(texto, msg)
 
     @staticmethod
-    def __info_msg(msg):
+    def __info_msg(msg: Mensagem) -> tuple:
         """
         Retorna 3 informações importantes da mensagem
 
@@ -134,7 +137,7 @@ class Bot(Metodos):
 
         return chat_id, is_privado, texto
 
-    def __responder_comando(self, texto, msg):
+    def __responder_comando(self, texto: str, msg: Mensagem) -> None:
         """
         Mensagem a ser enviada quando o usuário digitar o cmd
 
@@ -171,7 +174,9 @@ class Bot(Metodos):
 
         self.__item_de_resposta(msg, msg_pv, msg_pb)
 
-    def __item_de_resposta(self, msg, msg_pv, msg_pb):
+    def __item_de_resposta(self, msg: Mensagem,
+                           msg_pv: Union[str, None, Callable],
+                           msg_pb: Union[str, None, Callable]) -> None:
         """
         Envia a mensagem de resposta
 
@@ -180,7 +185,7 @@ class Bot(Metodos):
         """
 
         chat_id, is_privado, texto = self.__info_msg(msg)
-        func_resp = self.__funcao_de_resposta(msg, msg_pv, msg_pb)
+        func_resp = self.__funcao_manipuladora(msg, msg_pv, msg_pb)
 
         if func_resp is False:
             if isinstance(msg_pv, str) and is_privado:
@@ -190,7 +195,10 @@ class Bot(Metodos):
             else:
                 self.__responder_evento(msg)
 
-    def __funcao_de_resposta(self, msg, msg_pv, msg_pb):
+    def __funcao_manipuladora(self, msg: Mensagem,
+                              msg_pv: Union[str, None, Callable],
+                              msg_pb: Union[str, None, Callable]) -> Union[
+                                                                    bool, None]:
         """
         Função que será executada quando o bot receber uma mensagem
 
@@ -212,7 +220,7 @@ class Bot(Metodos):
             return False
 
     @check_funcao_resp
-    def __responder_evento(self, msg):
+    def __responder_evento(self, msg: Mensagem) -> None:
         """
         Responde a um evento com a chave especial @
 
@@ -237,10 +245,11 @@ class Bot(Metodos):
         self.__evento_mensagem(msg)
         self.__evento_edit_mensagem(msg)
 
-    def __executar_funcao(self, func, msg, is_privado):
+    def __executar_funcao(self,
+                          func: Callable,
+                          msg: Mensagem,
+                          is_privado: bool) -> any:
         """
-        Responde a um evento
-
         :param func: função a ser executada
         :param msg: mensagem recebida do bot
         :param is_privado: se a mensagem é privada
@@ -255,7 +264,7 @@ class Bot(Metodos):
         return resp
 
 
-    def __evento_chat(self, msg):
+    def __evento_chat(self, msg: Mensagem) -> None:
         """
         Responde a um evento de chat
 
@@ -275,7 +284,7 @@ class Bot(Metodos):
             resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
 
-    def __evento_mensagem(self, msg):
+    def __evento_mensagem(self, msg: Mensagem) -> None:
         """
         Responde a um evento de mensagem
 
@@ -297,7 +306,7 @@ class Bot(Metodos):
             self.__responder_retorno(chat_id, resp)
 
 
-    def __evento_edit_mensagem(self, msg):
+    def __evento_edit_mensagem(self, msg: Mensagem) -> None:
         """
         Responde a um evento de edição de mensagem
 
@@ -319,7 +328,7 @@ class Bot(Metodos):
             self.__responder_retorno(chat_id, resp)
 
     @staticmethod
-    def __pegar_argumentos(texto):
+    def __pegar_argumentos(texto: str) -> Union[list, None]:
         """
         Pega os argumentos do comando
 
@@ -336,7 +345,7 @@ class Bot(Metodos):
             return args
         return None
 
-    def __responder_retorno(self, chat_id, resp):
+    def __responder_retorno(self, chat_id: Union[int, str], resp: str) -> None:
         """
         Responde a mensagem com o retorno da função
 

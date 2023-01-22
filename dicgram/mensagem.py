@@ -16,10 +16,10 @@ class Campos:
               'my_chat_member', 'chat_member',
               'chat_join_request']
 
-    def __init__(self, message):
+    def __init__(self, message: dict):
         self.message = message
 
-    def update(self):
+    def update(self) -> int:
         """
         Retorna o campo da mensagem
 
@@ -34,10 +34,12 @@ class Mensagem:
     Classe que transforma um dicionário em um objeto,
     """
 
-    def __init__(self, dicionario):
+    def __init__(self, dicionario: dict):
         """
         :param dicionario: dicionário a ser transformado em objeto
         """
+
+        self.update = None
 
         for k, v in dicionario.items():
             if isinstance(v, dict):

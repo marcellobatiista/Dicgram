@@ -49,7 +49,7 @@ bot.comandos_publico = {
 # Bot: Em que posso ajudar, (publico)?
 ````
 
-Além disso, é possível criar comandos com parâmetros, que serão passados como argumentos para a função de resposta.
+Além disso, é possível criar comandos com parâmetros, que serão passados como argumentos para a função manipuladora.
 
 ### Exemplo de uso intermediário
 
@@ -75,7 +75,7 @@ bot.comandos_privado = {
 # Bot: 210
 ```
 
-Quer tornar seu bot mais dinâmico? Existem dois argumentos de fluxo opcionais para a função de resposta, `mim` e `msg`.
+Quer tornar seu bot mais dinâmico? Existem dois argumentos de fluxo opcionais para a função manipuladora, `mim` e `msg`.
 
 O primeiro é um objeto da classe `Bot`, que contém informações do seu bot e métodos da API do Telegram para enviar mensagens, arquivos, etc.
 

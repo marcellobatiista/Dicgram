@@ -1,9 +1,10 @@
 import time
+from typing import Callable
 
 from dicgram.mensagem import Mensagem
 
 
-def check_mensagem(func):
+def check_mensagem(func: Callable) -> Callable:
     """
     Decorator para verificar novas mensagens
 
@@ -11,7 +12,7 @@ def check_mensagem(func):
     :return: função decorada
     """
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> None:
         """
         Wrapper da função decorada
 
@@ -37,7 +38,7 @@ def check_mensagem(func):
     return wrapper
 
 
-def check_funcao_resp(func):
+def check_funcao_resp(func: Callable) -> Callable:
     """
     Decorator para verificar se a função de resposta é válida
 
@@ -45,7 +46,7 @@ def check_funcao_resp(func):
     :return: função decorada
     """
 
-    def wrapper(*args, **kwargs):
+    def wrapper(*args, **kwargs) -> None:
         try:
             func(*args, **kwargs)
         except TypeError as e:

@@ -9,7 +9,7 @@ from dicgram.mensagem import Mensagem
 
 
 class Metodos:
-    def __init__(self, token):
+    def __init__(self, token: str):
         """
         Inicializa a classe
         """
@@ -20,7 +20,7 @@ class Metodos:
             self.__criar_metodo(mtd)
 
     @staticmethod
-    def _get_metodos():
+    def _get_metodos() -> list:
         """
         Retorna uma lista com todos os métodos disponíveis na API do Telegram
 
@@ -36,7 +36,7 @@ class Metodos:
 
         return Metodos.snake_case(metodos_avaliados)
 
-    def __criar_metodo(self, nome):
+    def __criar_metodo(self, nome: str) -> None:
         """
         Cria um método disponível na API do Telegram
 
@@ -67,7 +67,7 @@ class Metodos:
         setattr(self, nome, metodo)
 
     @staticmethod
-    def snake_case(lista):
+    def snake_case(lista: list) -> list:
         """
         Retorna uma lista com todos os métodos
         disponíveis na API do Telegram em snake_case
@@ -86,7 +86,7 @@ class Metodos:
             lista_formatada.append(nome_formatado.lower())
         return lista_formatada
 
-    def sem_parametros(self):
+    def sem_parametros(self) -> list:
         """
         Retorna uma lista com todos os
         métodos disponíveis na API do Telegram
@@ -96,7 +96,7 @@ class Metodos:
         return self.snake_case(['getMe', 'close', 'getForumTopicIconStickers',
                                 'getUpdates', 'getWebhookInfo', 'logOut'])
 
-    def get_metodos(self):
+    def get_metodos(self) -> list:
         """
         Retorna uma lista com todos os métodos disponíveis
         na API do Telegram
