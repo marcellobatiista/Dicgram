@@ -237,6 +237,24 @@ class Bot(Metodos):
         self.__evento_mensagem(msg)
         self.__evento_edit_mensagem(msg)
 
+    def __executar_funcao(self, func, msg, is_privado):
+        """
+        Responde a um evento
+
+        :param func: função a ser executada
+        :param msg: mensagem recebida do bot
+        :param is_privado: se a mensagem é privada
+        """
+
+        try:
+            resp = func(mim=self, msg=msg, args=None) if is_privado else None
+        except AttributeError as e:
+            atributo = str(e).split()[-1].strip("'")
+            setattr(msg, atributo, None)
+            return self.__executar_funcao(func, msg, is_privado)
+        return resp
+
+
     def __evento_chat(self, msg):
         """
         Responde a um evento de chat
@@ -250,11 +268,11 @@ class Bot(Metodos):
         msg = getattr(msg, msg.update)
         if '@chat' in self.comandos_privado and not texto:
             func = self.comandos_privado['@chat']
-            resp = func(mim=self, msg=msg, args=None) if is_privado else None
+            resp = self.__executar_funcao(func, msg, is_privado)
             self.__responder_retorno(chat_id, resp)
         if '@chat' in self.comandos_publico and not texto:
             func = self.comandos_publico['@chat']
-            resp = func(mim=self, msg=msg, args=None) if not is_privado else None
+            resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
 
     def __evento_mensagem(self, msg):
@@ -271,12 +289,13 @@ class Bot(Metodos):
         msg = getattr(msg, msg.update)
         if '@mensagem' in self.comandos_privado and post:
             func = self.comandos_privado['@mensagem']
-            resp = func(mim=self, msg=msg, args=None) if is_privado else None
+            resp = self.__executar_funcao(func, msg, is_privado)
             self.__responder_retorno(chat_id, resp)
         if '@mensagem' in self.comandos_publico and post:
             func = self.comandos_publico['@mensagem']
-            resp = func(mim=self, msg=msg, args=None) if not is_privado else None
+            resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
+
 
     def __evento_edit_mensagem(self, msg):
         """
@@ -292,11 +311,11 @@ class Bot(Metodos):
         msg = getattr(msg, msg.update)
         if '@edit' in self.comandos_privado and edit_post:
             func = self.comandos_privado['@edit']
-            resp = func(mim=self, msg=msg, args=None) if is_privado else None
+            resp = self.__executar_funcao(func, msg, is_privado)
             self.__responder_retorno(chat_id, resp)
         if '@edit' in self.comandos_publico and edit_post:
             func = self.comandos_publico['@edit']
-            resp = func(mim=self, msg=msg, args=None) if not is_privado else None
+            resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
 
     @staticmethod
