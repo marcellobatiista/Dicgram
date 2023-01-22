@@ -259,7 +259,7 @@ class Bot(Metodos):
             resp = func(mim=self, msg=msg, args=None) if is_privado else None
         except AttributeError as e:
             atributo = str(e).split()[-1].strip("'")
-            setattr(msg, atributo, None)
+            setattr(Mensagem, atributo, None)
             return self.__executar_funcao(func, msg, is_privado)
         return resp
 
