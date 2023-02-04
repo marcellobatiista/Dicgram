@@ -25,21 +25,21 @@ class Bot(Metodos):
     comandos_privado = {}
     comandos_publico = {}
 
-    def __init__(self, **kwargs):
+    def __init__(self, token, **kwargs):
         """
         Inicializa o bot
 
         :param nome: nome do bot
         :param token: token do bot
-        :param update: se o bot deve receber atualizações de novas mensagens: Default é True
-        :param atrasar_update: atraso entre as atualizações de novas mensagens: Default é 0.5
+        :param polling: se o bot deve receber atualizações de novas mensagens: Default é True
+        :param polling_rate: atraso entre as atualizações de novas mensagens: Default é 0.5
         """
 
-        self.__token = kwargs.get('token', None)
-        self.__att = kwargs.get('update', True) is True
+        self.__token = token
+        self.__att = kwargs.get('polling', True) is True
 
-        self._atrasar_att = kwargs.get('atrasar_update', 0.5)
-        self._atrasar_update = self._atrasar_att if self._atrasar_att > 0 else 0.5
+        self._polling_rate = kwargs.get('polling_rate', 0.5)
+        self._polling_rate = self._polling_rate if self._polling_rate > 0 else 0.5
 
         self.__setup(self.__token)
         super().__init__(self.__token)

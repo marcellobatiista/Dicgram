@@ -33,7 +33,7 @@ def check_mensagem(func: Callable) -> Callable:
                     if result['update_id'] != last_update_id:
                         last_update_id = result['update_id']
                         func(*args, **kwargs, msg=Mensagem(result))
-            time.sleep(self._atrasar_att)
+            time.sleep(self._polling_rate)
 
     return wrapper
 
