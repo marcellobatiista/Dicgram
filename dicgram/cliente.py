@@ -9,7 +9,7 @@ from typing import Union, Callable
 import requests
 
 from dicgram.decorators import check_funcao_resp
-from dicgram.decorators import check_mensagem
+from dicgram.decorators import polling_message
 from dicgram.mensagem import Mensagem
 from dicgram.metodos import Metodos
 
@@ -108,7 +108,7 @@ class Bot(Metodos):
             print('Debug: Erro de conexão')
             time.sleep(5)
 
-    @check_mensagem
+    @polling_message
     def __receber_mensagem(self, msg: Mensagem) -> None:
         """
         Recebe a mensagem e a processa

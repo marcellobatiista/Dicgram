@@ -4,7 +4,7 @@ from typing import Callable
 from dicgram.mensagem import Mensagem
 
 
-def check_mensagem(func: Callable) -> Callable:
+def polling_message(func: Callable) -> Callable:
     """
     Decorator para verificar novas mensagens
 
