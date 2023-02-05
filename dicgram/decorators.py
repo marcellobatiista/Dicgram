@@ -38,6 +38,51 @@ def polling_message(func: Callable) -> Callable:
     return wrapper
 
 
+def webhook_message(func: Callable) -> Callable:
+    """
+    Decorator para verificar novas mensagens
+
+    :param func: função a ser decorada
+    :return: função decorada
+    """
+
+    def wrapper(*args, **kwargs) -> None:
+        """
+        Wrapper da função decorada
+
+        :param args: argumentos da função decorada
+        :param kwargs: argumentos nomeados da função decorada
+        :return: None
+        """
+
+        self = args[0]
+        self._set_webhook(self._webhook_url)
+
+        from fastapi import FastAPI, Request
+        from fastapi.responses import JSONResponse
+
+        app = FastAPI()
+
+        @app.post('/' + self._webhook_url.split('/')[-1])
+        async def webhook(request: Request):
+            """
+            Webhook
+
+            :param request: request
+            :return: JSONResponse
+            """
+
+            data = await request.json()
+            func(*args, **kwargs, msg=Mensagem(data))
+            return JSONResponse({'status': 'ok'})
+
+        import uvicorn
+
+        uvicorn.run(app, host='0.0.0.0')
+
+    return wrapper
+
+
 def check_funcao_resp(func: Callable) -> Callable:
     """
     Decorator para verificar se a função de resposta é válida

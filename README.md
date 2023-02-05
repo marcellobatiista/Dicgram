@@ -227,9 +227,10 @@ Ela é responsável por fazer a conexão com o Telegram e gerenciar os eventos.
 
 Parâmetros:
 
-* `token`: O token do bot que você recebeu do BotFather. (Obrigatório)
-* `polling`: O loop de captura de eventos. (Opcional). Se não for informado, continurá como True.
-* `polling_rate`: O tempo de espera para receber uma resposta do Telegram. (Opcional). Se não for informado, será 0.5s.
+* `token`(Obrigatório): O token do bot que você recebeu do BotFather.
+* `polling`(Opcional) = True: O loop de captura de eventos.
+* `polling_rate`(Opcional) = 0.5: O tempo de espera, em segundos, para receber uma resposta do Telegram.
+* `webhook_url`(Opcional): A URL do webhook.
 
 
 ### Projeto feito por [Marcelo](https://github.com/marcellobatiista)

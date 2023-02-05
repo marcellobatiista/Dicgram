@@ -10,6 +10,7 @@ import requests
 
 from dicgram.decorators import check_funcao_resp
 from dicgram.decorators import polling_message
+from dicgram.decorators import webhook_message
 from dicgram.mensagem import Mensagem
 from dicgram.metodos import Metodos
 
@@ -25,26 +26,43 @@ class Bot(Metodos):
     comandos_privado = {}
     comandos_publico = {}
 
-    def __init__(self, token, **kwargs):
+    def __init__(
+            self,
+            token,
+            polling=True,
+            polling_rate=0.5,
+            webhook_url=None
+    ):
+
         """
         Inicializa o bot
 
-        :param nome: nome do bot
         :param token: token do bot
         :param polling: se o bot deve receber atualizações de novas mensagens: Default é True
         :param polling_rate: atraso entre as atualizações de novas mensagens: Default é 0.5
+        :param webhook_url: url do webhook: Default é None
         """
 
         self.__token = token
-        self.__att = kwargs.get('polling', True) is True
+        self.__att = polling is True
 
-        self._polling_rate = kwargs.get('polling_rate', 0.5)
+        self._polling_rate = polling_rate
         self._polling_rate = self._polling_rate if self._polling_rate > 0 else 0.5
+
+        self._webhook_url = webhook_url
+
+        if self._webhook_url and self._webhook_url.find('https://') == -1:
+            raise Exception('URL do webhook deve ser HTTPS')
 
         self.__setup(self.__token)
         super().__init__(self.__token)
         self.__set_mim()
-        self.__run() if self.__att else None
+
+        if self._webhook_url:
+            self.__run_webhook()
+        elif self.__att:
+            self.__run_polling()
+
 
     def __str__(self):
         """
@@ -70,12 +88,20 @@ class Bot(Metodos):
             raise Exception('Token não informado')
         self.__API_URL = f'https://api.telegram.org/bot{token}/'
 
-    def __run(self) -> None:
+    def __run_polling(self) -> None:
         """
         Inicia o loop do bot para capturar novas mensagens
         """
 
         Thread(target=self.__receber_mensagem).start()
+        print(self.__status())
+
+    def __run_webhook(self) -> None:
+        """
+        Inicia o loop do bot para capturar novas mensagens
+        """
+
+        Thread(target=self.__receber_mensagem_webhook).start()
         print(self.__status())
 
     def __set_mim(self) -> None:
@@ -98,6 +124,9 @@ class Bot(Metodos):
         :return: json com as novas mensagens
         """
 
+        # deleta webhook antes
+        self._set_webhook('')
+
         url = f'{self.__API_URL}getUpdates?timeout=100'
         if offset:
             url += '&offset={}'.format(offset)
@@ -107,6 +136,22 @@ class Bot(Metodos):
         except requests.exceptions.ConnectionError:
             print('Debug: Erro de conexão')
             time.sleep(5)
+
+
+    def _set_webhook(self, url: str, cert: str = None) -> None:
+        """
+        Configura o webhook do bot
+
+        :param url: url do webhook
+        :param cert: certificado do webhook
+        :return: None
+        """
+
+        url = f'{self.__API_URL}setWebhook?url={url}'
+        if cert:
+            url += f'&certificate={cert}'
+        requests.get(url)
+
 
     @polling_message
     def __receber_mensagem(self, msg: Mensagem) -> None:
@@ -118,6 +163,19 @@ class Bot(Metodos):
 
         chat_id, is_privado, texto = self.__info_msg(msg)
         self.__responder_comando(texto, msg)
+
+
+    @webhook_message
+    def __receber_mensagem_webhook(self, msg: Mensagem) -> None:
+        """
+        Recebe a mensagem e a processa
+
+        :param msg: mensagem recebida do bot através do decorador
+        """
+
+        chat_id, is_privado, texto = self.__info_msg(msg)
+        self.__responder_comando(texto, msg)
+
 
     @staticmethod
     def __info_msg(msg: Mensagem) -> tuple:
