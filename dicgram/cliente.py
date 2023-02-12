@@ -77,7 +77,14 @@ class Bot(Metodos):
         return self.get_me().__str__()
 
     def __status(self) -> str:
-        return f'\n{self.copyright}\n@{self.username} ({self.version}) - Online!\n\n'
+        if self._webhook_url:
+            status = f'\n{self.copyright}\n@{self.username} ({self.version}) - Webhook ativo!\n\n'
+            status += f'URL: {self._webhook_url}\n'
+            status += f'Porta: {self._webhook_port}\n'
+        else:
+            status = f'\n{self.copyright}\n@{self.username} ({self.version}) - Polling ativo!\n\n'
+            status += f'Polling rate: {self._polling_rate}s\n'
+        return status
 
     def __setup(self, token) -> None:
         """
