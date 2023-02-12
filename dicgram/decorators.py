@@ -78,7 +78,8 @@ def webhook_message(func: Callable) -> Callable:
 
         import uvicorn
 
-        uvicorn.run(app, host='0.0.0.0')
+        self._webhook_port = 8000 if not self._webhook_port else self._webhook_port
+        uvicorn.run(app, host='0.0.0.0', port=self._webhook_port)
 
     return wrapper
 

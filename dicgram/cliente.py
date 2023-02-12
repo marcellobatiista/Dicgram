@@ -23,15 +23,16 @@ class Bot(Metodos):
     version = None
     copyright = None
 
-    comandos_privado = {}
-    comandos_publico = {}
+    privado = {}
+    publico = {}
 
     def __init__(
             self,
             token,
             polling=True,
             polling_rate=0.5,
-            webhook_url=None
+            webhook_url=None,
+            webhook_port=None
     ):
 
         """
@@ -41,6 +42,7 @@ class Bot(Metodos):
         :param polling: se o bot deve receber atualizações de novas mensagens: Default é True
         :param polling_rate: atraso entre as atualizações de novas mensagens: Default é 0.5
         :param webhook_url: url do webhook: Default é None
+        :param webhook_port: porta do seu server para o webhook: Default é None
         """
 
         self.__token = token
@@ -50,6 +52,7 @@ class Bot(Metodos):
         self._polling_rate = self._polling_rate if self._polling_rate > 0 else 0.5
 
         self._webhook_url = webhook_url
+        self._webhook_port = webhook_port
 
         if self._webhook_url and self._webhook_url.find('https://') == -1:
             raise Exception('URL do webhook deve ser HTTPS')
@@ -218,7 +221,7 @@ class Bot(Metodos):
             mim.send_menssage(chat_id=msg.chat.id, text='Olá mundo 2!')
             return 'Olá mundo 3!'
 
-        bot.comandos_privado = {
+        bot.privado = {
             '/hello': ola_mundo,
             '/world': "Hello World!",
         }
@@ -227,8 +230,8 @@ class Bot(Metodos):
         """
 
         cmd = texto.split(' ')[0] if texto else None
-        msg_pv = self.comandos_privado.get(cmd, None)
-        msg_pb = self.comandos_publico.get(cmd, None)
+        msg_pv = self.privado.get(cmd, None)
+        msg_pb = self.publico.get(cmd, None)
 
         self.__item_de_resposta(msg, msg_pv, msg_pb)
 
@@ -333,12 +336,12 @@ class Bot(Metodos):
         chat_id, is_privado, texto = self.__info_msg(msg)
 
         msg = getattr(msg, msg.update)
-        if '@chat' in self.comandos_privado and not texto:
-            func = self.comandos_privado['@chat']
+        if '@chat' in self.privado and not texto:
+            func = self.privado['@chat']
             resp = self.__executar_funcao(func, msg, is_privado)
             self.__responder_retorno(chat_id, resp)
-        if '@chat' in self.comandos_publico and not texto:
-            func = self.comandos_publico['@chat']
+        if '@chat' in self.publico and not texto:
+            func = self.publico['@chat']
             resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
 
@@ -354,12 +357,12 @@ class Bot(Metodos):
         chat_id, is_privado, texto = self.__info_msg(msg)
 
         msg = getattr(msg, msg.update)
-        if '@mensagem' in self.comandos_privado and post:
-            func = self.comandos_privado['@mensagem']
+        if '@mensagem' in self.privado and post:
+            func = self.privado['@mensagem']
             resp = self.__executar_funcao(func, msg, is_privado)
             self.__responder_retorno(chat_id, resp)
-        if '@mensagem' in self.comandos_publico and post:
-            func = self.comandos_publico['@mensagem']
+        if '@mensagem' in self.publico and post:
+            func = self.publico['@mensagem']
             resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
 
@@ -376,12 +379,12 @@ class Bot(Metodos):
         chat_id, is_privado, texto = self.__info_msg(msg)
 
         msg = getattr(msg, msg.update)
-        if '@edit' in self.comandos_privado and edit_post:
-            func = self.comandos_privado['@edit']
+        if '@edit' in self.privado and edit_post:
+            func = self.privado['@edit']
             resp = self.__executar_funcao(func, msg, is_privado)
             self.__responder_retorno(chat_id, resp)
-        if '@edit' in self.comandos_publico and edit_post:
-            func = self.comandos_publico['@edit']
+        if '@edit' in self.publico and edit_post:
+            func = self.publico['@edit']
             resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
 

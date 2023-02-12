@@ -25,13 +25,13 @@ from dicgram import Bot
 bot = Bot('<TOKEN>')
 
 # Responde aos comandos no privado
-bot.comandos_privado = {
+bot.privado = {
     '/start': 'Olá, mundo! Eu sou um bot!',
     '/help': 'Em que posso ajudar? :)',
 }
 
 # Responde aos comandos em canais e grupos
-bot.comandos_publico = {
+bot.publico = {
     '/start': 'Olá, mundo! (publico)',
     '/help': 'Em que posso ajudar, (publico)?',
 }
@@ -61,7 +61,7 @@ bot = Bot('<TOKEN>')
 def soma(mim, msg, args):
     return sum(map(int, args))
 
-bot.comandos_privado = {
+bot.privado = {
     '/soma': soma,
 }
 
@@ -109,8 +109,8 @@ def consultar_cotacao(mim, msg, args):
     return f'A cotação do {moeda} é {cotacao}.'
 
 
-bot.comandos_privado['/start'] = 'Olá, mundo! Eu sou um bot!'
-bot.comandos_publico['/cotacao'] = consultar_cotacao
+bot.privado['/start'] = 'Olá, mundo! Eu sou um bot!'
+bot.publico['/cotacao'] = consultar_cotacao
 
 
 # Usuário público: /cotacao
@@ -175,18 +175,18 @@ def mostrar_contagem(mim, msg, args):
 
 
 def desligar_contador(mim, msg, args):
-    mim.comandos_publico.pop('@mensagem', None)
+    mim.publico.pop('@mensagem', None)
     usuarios.clear()
     mim.send_message(chat_id=chat,
                     text='Pessoas, o contador de mensagens foi desligado pelo admin')
     return 'Contador de mensagens desligado!'
 
 
-bot.comandos_publico = {
+bot.publico = {
     '@mensagem': contador_de_mensagens,
     '/contagem': mostrar_contagem,
 }
-bot.comandos_privado['/desligar'] = desligar_contador
+bot.privado['/desligar'] = desligar_contador
 
 # Usuário1 público: /contagem
 # Bot público: Você ainda não mandou nenhuma mensagem
@@ -231,11 +231,11 @@ Parâmetros:
 * `polling`(Opcional) = True: O loop de captura de eventos.
 * `polling_rate`(Opcional) = 0.5: O tempo de espera, em segundos, para receber uma resposta do Telegram.
 * `webhook_url`(Opcional) = None: A URL do webhook.
+* `webhook_port`(Opcional) = 8000: A porta do server para o webhook.
 
 
 ### Projeto feito por [Marcelo](https://github.com/marcellobatiista)
 
-* [Twitter](https://twitter.com/marcellobatiist)
 * [Telegram](https://t.me/@SP4CNE)
 
 ### Licença
