@@ -4,7 +4,7 @@ Robô que não gosta de grupos, então ele sai deles.
 
 from dicgram import Bot
 
-bot = Bot(token='<TOKEN>', nome='SuporteBot')
+bot = Bot('<TOKEN>')
 
 
 def sair_do_grupo(mim, msg, args):
@@ -17,4 +17,4 @@ def sair_do_grupo(mim, msg, args):
         pass
 
 
-bot.comandos_publico['@chat'] = sair_do_grupo
+bot.publico['@chat'] = sair_do_grupo

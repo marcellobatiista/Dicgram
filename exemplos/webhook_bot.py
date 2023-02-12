@@ -6,6 +6,6 @@ bot = Bot('<TOKEN>',
 
 
 
-bot.comandos_privado = {
+bot.privado = {
     '/start': 'Olá, eu sou um bot de teste para o webhook'
 }

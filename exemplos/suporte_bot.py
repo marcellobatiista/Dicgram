@@ -5,7 +5,7 @@ por um utilizador e envia para o administrador
 
 from dicgram import Bot
 
-bot = Bot(token='<TOKEN>', nome='SuporteBot')
+bot = Bot('<TOKEN>')
 
 ID_ADMIN = '<ID do administrador>'
 
@@ -18,7 +18,7 @@ def suporte(mim, msg, args):
     return 'Mensagem enviada com sucesso'
 
 
-bot.comandos_privado = {
+bot.privado = {
     '/suporte': suporte,
     '/start': 'Olá, sou um robô de suporte. Envie uma mensagem para o administrador.'
 }

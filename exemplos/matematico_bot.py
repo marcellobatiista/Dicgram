@@ -7,7 +7,7 @@ import math
 
 from dicgram import Bot
 
-bot = Bot(token='<TOKEN>', nome='MatematicoBot')
+bot = Bot('<TOKEN>')
 
 
 def somar(mim, msg, args):
@@ -115,7 +115,7 @@ def raizes(mim, msg, args):
            f'x2 = {(-float(args[1]) - math.sqrt(delt)) / (2 * float(args[0]))}'
 
 
-bot.comandos_privado = {
+bot.privado = {
     '/start': 'Olá, eu sou um bot matemático, digite /help para saber mais sobre mim.',
 
     '/somar': somar,

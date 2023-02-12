@@ -4,7 +4,7 @@ Faz perguntas aos usuários e armazena as respostas
 
 from dicgram import Bot
 
-bot = Bot(token='<TOKEN>', nome='QuestionadorBot')
+bot = Bot('<TOKEN>')
 
 banco = {}
 questionario = {'Qual é o seu nome?': None,
@@ -34,4 +34,4 @@ def preencher_perguntas(mim, msg, args):
     return nova_pergunta
 
 
-bot.comandos_privado['@mensagem'] = preencher_perguntas
+bot.privado['@mensagem'] = preencher_perguntas
