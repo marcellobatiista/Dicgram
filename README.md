@@ -1,21 +1,32 @@
-# Dicgram
+# ![Dicgram](https://img.icons8.com/color/48/null/neuron.png) Dicgram
 
 Dicgram é um Framework simples para criação de bots para o Telegram em Python
 
-## Instalação
+## Instalação 
 
-```bash
-pip install dicgram
-```
-ou
-```bash
-python setup.py install
-```
+`pip install dicgram` ou `python setup.py install`
 
 O uso dele é bem simples, basta criar um arquivo principal e importar o Dicgram, e criar uma instância do Bot.
 
+### Classe `Bot`
+
+A classe `Bot` é a classe principal do módulo `dicgram.cliente`.
+Ela é responsável por fazer a conexão com o Telegram e gerenciar os eventos.
+
+Parâmetros:
+
+* **token** (`str`) - O token do bot que você recebeu do BotFather.
+* **polling** (`bool`, _opcional_) - O loop de captura de eventos. Padrão é `True`.
+* **polling_rate** (`float` | `int`, _opcional_) - O tempo de espera, em segundos, para receber uma resposta do Telegram. Padrão é `0.5`.
+* **webhook_url** (`str`, _opcional_) - A URL do webhook. Padrão é `None`.
+* **webhook_port** (`int`, _opcional_) - A porta do server para o webhook. Padrão é `8000`.
+
+
+### Comandos
+
 Os comandos são criados em um dicionário, onde a chave é o comando e o valor é uma string 
 que será enviada como resposta ao comando enviado pelo usuário.
+
 
 ### Exemplo de uso básico
 
@@ -36,7 +47,7 @@ bot.publico = {
     '/help': 'Em que posso ajudar, (publico)?',
 }
 
-# Usuário privado: /start
+# Usuário privado: /start 
 # Bot: Olá, mundo! Eu sou um bot!
 
 # Usuário público: /start
@@ -219,20 +230,6 @@ bot.set_chat_title(chat_id='<ID DO GRUPO>', title='Novo título do grupo')
 bot.send_location(chat_id='<ID DO GRUPO>', latitude=-23.5505, longitude=-46.6333)
 # etc...
 ```
-
-### Classe `Bot`
-
-A classe `Bot` é a classe principal do módulo `dicgram.cliente`.
-Ela é responsável por fazer a conexão com o Telegram e gerenciar os eventos.
-
-Parâmetros:
-
-* `token`(Obrigatório): O token do bot que você recebeu do BotFather.
-* `polling`(Opcional) = True: O loop de captura de eventos.
-* `polling_rate`(Opcional) = 0.5: O tempo de espera, em segundos, para receber uma resposta do Telegram.
-* `webhook_url`(Opcional) = None: A URL do webhook.
-* `webhook_port`(Opcional) = 8000: A porta do server para o webhook.
-
 
 ### Projeto feito por [Marcelo](https://github.com/marcellobatiista)
 
