@@ -60,6 +60,7 @@ class Bot(Metodos):
         self.__setup(self.__token)
         super().__init__(self.__token)
         self.__set_mim()
+        self.__webhook_info = self._info_webhook()
 
         if self._webhook_url:
             self.__run_webhook()
@@ -77,11 +78,11 @@ class Bot(Metodos):
 
     def __status(self) -> str:
         if self._webhook_url:
-            status = f'\n{self.copyright}\n@{self.username} ({self.version}) - Webhook ativo!\n\n'
+            status = f'\n{self.copyright}\n@{self.username} ({self.version}) - Webhook ativo!\n'
             status += f'URL: {self._webhook_url}\n'
             status += f'Porta: {self._webhook_port}\n'
         else:
-            status = f'\n{self.copyright}\n@{self.username} ({self.version}) - Polling ativo!\n\n'
+            status = f'\n{self.copyright}\n@{self.username} ({self.version}) - Polling ativo!\n'
             status += f'Polling rate: {self._polling_rate}s\n'
         return status
 
@@ -134,7 +135,9 @@ class Bot(Metodos):
         """
 
         # deleta webhook antes
-        self._set_webhook('')
+        if self.__webhook_info['result']['url']:
+            self._set_webhook('')
+            self.__webhook_info = self._info_webhook()
 
         url = f'{self.__API_URL}getUpdates?timeout=100'
         if offset:
@@ -145,6 +148,16 @@ class Bot(Metodos):
         except requests.exceptions.ConnectionError:
             print('Debug: Erro de conexão')
             time.sleep(5)
+
+    def _info_webhook(self) -> dict:
+        """
+        Pega as informações do webhook
+
+        :return: json com as informações do webhook
+        """
+
+        url = f'{self.__API_URL}getWebhookInfo'
+        return requests.get(url).json()
 
     def _set_webhook(self, url: str, cert: str = None) -> None:
         """
