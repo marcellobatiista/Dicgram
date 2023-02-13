@@ -66,7 +66,6 @@ class Bot(Metodos):
         elif self.__att:
             self.__run_polling()
 
-
     def __str__(self):
         """
         Retorna as informações do bot
@@ -94,7 +93,7 @@ class Bot(Metodos):
         :return: None
         """
 
-        if not token:
+        if ':' not in token:
             raise Exception('Token não informado')
         self.__API_URL = f'https://api.telegram.org/bot{token}/'
 
@@ -108,7 +107,7 @@ class Bot(Metodos):
 
     def __run_webhook(self) -> None:
         """
-        Inicia o loop do bot para capturar novas mensagens
+        Inicia o server do bot para receber novas mensagens
         """
 
         Thread(target=self.__receber_mensagem_webhook).start()
@@ -119,7 +118,7 @@ class Bot(Metodos):
         Adiciona informações do bot ao objeto
         :return: None
         """
-        
+
         gm = self.get_me()
         atributos = dir(gm)
         for atributo in atributos:
@@ -147,7 +146,6 @@ class Bot(Metodos):
             print('Debug: Erro de conexão')
             time.sleep(5)
 
-
     def _set_webhook(self, url: str, cert: str = None) -> None:
         """
         Configura o webhook do bot
@@ -162,7 +160,6 @@ class Bot(Metodos):
             url += f'&certificate={cert}'
         requests.get(url)
 
-
     @polling_message
     def __receber_mensagem(self, msg: Mensagem) -> None:
         """
@@ -174,7 +171,6 @@ class Bot(Metodos):
         chat_id, is_privado, texto = self.__info_msg(msg)
         self.__responder_comando(texto, msg)
 
-
     @webhook_message
     def __receber_mensagem_webhook(self, msg: Mensagem) -> None:
         """
@@ -185,7 +181,6 @@ class Bot(Metodos):
 
         chat_id, is_privado, texto = self.__info_msg(msg)
         self.__responder_comando(texto, msg)
-
 
     @staticmethod
     def __info_msg(msg: Mensagem) -> tuple:
@@ -266,7 +261,7 @@ class Bot(Metodos):
     def __funcao_manipuladora(self, msg: Mensagem,
                               msg_pv: Union[str, None, Callable],
                               msg_pb: Union[str, None, Callable]) -> Union[
-                                                                    bool, None]:
+        bool, None]:
         """
         Função que será executada quando o bot receber uma mensagem
 
@@ -331,7 +326,6 @@ class Bot(Metodos):
             return self.__executar_funcao(func, msg, is_privado)
         return resp
 
-
     def __evento_chat(self, msg: Mensagem) -> None:
         """
         Responde a um evento de chat
@@ -372,7 +366,6 @@ class Bot(Metodos):
             func = self.publico['@mensagem']
             resp = self.__executar_funcao(func, msg, not is_privado)
             self.__responder_retorno(chat_id, resp)
-
 
     def __evento_edit_mensagem(self, msg: Mensagem) -> None:
         """
