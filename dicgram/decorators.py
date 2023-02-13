@@ -64,7 +64,7 @@ def webhook_message(func: Callable) -> Callable:
         app = FastAPI()
 
         @app.post('/' + self._webhook_url.split('/')[-1])
-        async def webhook(request: Request):
+        def webhook(request: Request):
             """
             Webhook
 
