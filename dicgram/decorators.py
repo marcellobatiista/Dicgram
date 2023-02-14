@@ -58,27 +58,26 @@ def webhook_message(func: Callable) -> Callable:
         self = args[0]
         self._set_webhook(self._webhook_url)
 
-        from fastapi import FastAPI, Request
-        from fastapi.responses import JSONResponse
+        import logging
+        from flask import Flask, request, jsonify
 
-        app = FastAPI()
+        app = Flask(__name__)
+        log = logging.getLogger('werkzeug')
+        log.setLevel(logging.ERROR)
 
-        @app.post('/' + self._webhook_url.split('/')[-1])
-        async def webhook(request: Request):
+        @app.route('/' + self._webhook_url.split('/')[-1], methods=['POST'])
+        def webhook():
             """
             Webhook
 
-            :param request: request
-            :return: JSONResponse
+            :return: Json com status
             """
 
-            data = await request.json()
+            data = request.get_json()
             func(*args, **kwargs, msg=Mensagem(data))
-            return JSONResponse({'status': 'ok'})
+            return jsonify({'status': 'ok'})
 
-        import uvicorn
-
-        uvicorn.run(app, host='0.0.0.0', port=self._webhook_port, log_level='error')
+        app.run(host='0.0.0.0', port=self._webhook_port)
 
     return wrapper
 
