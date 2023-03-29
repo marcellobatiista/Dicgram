@@ -46,7 +46,9 @@ class Metodos:
 
         def metodo(*args, **kwargs):
             mtsp = self.sem_parametros()
-            if (not kwargs or args) and nome not in mtsp:
+            if len(args) == 0:
+                pass
+            elif (not kwargs or args) and nome not in mtsp:
                 raise ValueError('Você deve passar os parâmetros como argumentos nomeados')
 
             url = f'https://api.telegram.org/bot{self.__token}/{nome.replace("_", "")}'
@@ -60,6 +62,8 @@ class Metodos:
                 return Mensagem(r)
             elif not r.get('description'):  # Msg Bot
                 return Mensagem(r)
+            elif 'ok' not in r:  # Somente um resultado de uma busca
+                return r.get('description', r)
             else:
                 raise Exception(r.get('description', r))
 
