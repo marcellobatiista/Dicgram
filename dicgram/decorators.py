@@ -56,6 +56,16 @@ def webhook_message(func: Callable) -> Callable:
         """
 
         self = args[0]
+
+        # Verifica a url do webhook tem o endpoint
+        endpoints = '/'.join(self._webhook_url.split('/')[3:])
+        if not endpoints:
+            self._webhook_url = f'{self._webhook_url}/webhook'
+            endpoints = '/webhook'
+        else:
+            endpoints = f'/{endpoints}'
+
+        # Define o webhook
         self._set_webhook(self._webhook_url)
 
         import logging
@@ -65,7 +75,7 @@ def webhook_message(func: Callable) -> Callable:
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
 
-        @app.route('/' + self._webhook_url.split('/')[-1], methods=['POST'])
+        @app.route('/' + endpoints, methods=['POST'])
         def webhook():
             """
             Webhook
